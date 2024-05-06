@@ -11,12 +11,34 @@ def page_grab(url):
     return html
 
 
+def get_links(page):
+    pattern = "<a href.*?>.*?</a.*?>"
+    match_results = re.findall(pattern, page, re.IGNORECASE|re.DOTALL)
+    return match_results
+
+
 allBillsHTML = page_grab(allBills)
 
-pattern = "<a href.*?>.*?</a.*?>"
+billLinks = get_links(allBillsHTML)
 
-match_results = re.findall(pattern, allBillsHTML, re.IGNORECASE)
-
-for link in match_results:
+allBillsList = []
+for link in billLinks:
     if "votesbynumber" in link:
-        print(link)
+        billUrl = link[9:-12]
+        billName = link[-10:-4]
+
+        # Add link and bill number to dict
+        # follow link and get all links to vote page and add to dict
+        # pull link out of code
+        billPage = page_grab(billUrl)
+        billPageLinks = get_links(billPage)
+        allBillVoteLinks = []
+        for voteLinks in billPageLinks:
+            if "votes/votes.asp" in voteLinks:
+                allBillVoteLinks.append(voteLinks[9:-17])
+        billDict = {
+            "Bill Name": billName,
+            "All Bill Votes": billUrl,
+            "Links to votes": allBillVoteLinks
+        }
+        allBillsList.append(billDict)
