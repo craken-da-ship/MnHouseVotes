@@ -17,6 +17,12 @@ def get_links(page):
     return match_results
 
 
+def get_votes(page):
+    pattern = "Those who voted.*?</TABLE.*?>"
+    match_results = re.findall(pattern, page, re.IGNORECASE|re.DOTALL)
+    return match_results
+
+
 allBillsHTML = page_grab(allBills)
 
 billLinks = get_links(allBillsHTML)
