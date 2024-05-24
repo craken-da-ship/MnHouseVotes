@@ -13,13 +13,13 @@ def page_grab(url):
 
 def get_links(page):
     pattern = "<a href.*?>.*?</a.*?>"
-    match_results = re.findall(pattern, page, re.IGNORECASE|re.DOTALL)
+    match_results = re.findall(pattern, page, re.IGNORECASE | re.DOTALL)
     return match_results
 
 
 def get_votes(page):
     pattern = "Those who voted.*?</TABLE.*?>"
-    match_results = re.findall(pattern, page, re.IGNORECASE|re.DOTALL)
+    match_results = re.findall(pattern, page, re.IGNORECASE | re.DOTALL)
     return match_results
 
 
@@ -38,13 +38,19 @@ for link in billLinks:
         # pull link out of code
         billPage = page_grab(billUrl)
         billPageLinks = get_links(billPage)
-        allBillVoteLinks = []
+        allBillVotes = []
         for voteLinks in billPageLinks:
             if "votes/votes.asp" in voteLinks:
-                allBillVoteLinks.append(voteLinks[9:-17])
+                voteLink = voteLinks[9:-17]
+                votePage = page_grab(voteLink)
+                billVotes = {
+                    "Vote Link": voteLink,
+                    "Votes": get_votes(votePage)
+                }
+                allBillVotes.append(billVotes)
         billDict = {
             "Bill Name": billName,
             "All Bill Votes": billUrl,
-            "Links to votes": allBillVoteLinks
+            "Votes": allBillVotes
         }
         allBillsList.append(billDict)
