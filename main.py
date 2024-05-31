@@ -1,27 +1,7 @@
-import re
-from urllib.request import urlopen
+
+from functions import *
 
 allBills = "https://www.house.mn.gov/votes/Votesbydatels93.asp"
-
-
-def page_grab(url):
-    page = urlopen(url)
-    html_bytes = page.read()
-    html = html_bytes.decode("utf-8")
-    return html
-
-
-def get_links(page):
-    pattern = "<a href.*?>.*?</a.*?>"
-    match_results = re.findall(pattern, page, re.IGNORECASE | re.DOTALL)
-    return match_results
-
-
-def get_votes(page):
-    pattern = "Those who voted.*?</TABLE.*?>"
-    match_results = re.findall(pattern, page, re.IGNORECASE | re.DOTALL)
-    return match_results
-
 
 allBillsHTML = page_grab(allBills)
 
@@ -37,15 +17,21 @@ for link in billLinks:
         # follow link and get all links to vote page and add to dict
         # pull link out of code
         billPage = page_grab(billUrl)
+        if page_grab == "Page Error":
+            continue
         billPageLinks = get_links(billPage)
         allBillVotes = []
         for voteLinks in billPageLinks:
             if "votes/votes.asp" in voteLinks:
                 voteLink = voteLinks[9:-17]
                 votePage = page_grab(voteLink)
+                if votePage == "Page Error":
+                    continue
+                votes = get_votes(votePage)
                 billVotes = {
                     "Vote Link": voteLink,
-                    "Votes": get_votes(votePage)
+                    "Votes Affirmative": get_affirmative(votes),
+                    "Votes Negative:": get_negative(votes)
                 }
                 allBillVotes.append(billVotes)
         billDict = {
