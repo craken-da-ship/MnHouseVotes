@@ -19,21 +19,24 @@ for link in billLinks:
         billPage = page_grab(billUrl)
         if page_grab == "Page Error":
             continue
-        billPageLinks = get_links(billPage)
+        billInfo = get_billinfo(billPage)
         allBillVotes = []
-        for voteLinks in billPageLinks:
-            if "votes/votes.asp" in voteLinks:
-                voteLink = voteLinks[9:-17]
-                votePage = page_grab(voteLink)
-                if votePage == "Page Error":
-                    continue
-                votes = get_votes(votePage)
-                billVotes = {
-                    "Vote Link": voteLink,
-                    "Votes Affirmative": get_affirmative(votes),
-                    "Votes Negative:": get_negative(votes)
-                }
-                allBillVotes.append(billVotes)
+        for vote in billInfo:
+            votePage = page_grab(vote['Link'])
+            if votePage == "Page Error":
+                continue
+            votes = get_votes(votePage)
+
+            billVotes = {
+                "Vote Link": vote['Link'],
+                "Description": vote['Description'],
+                "Date": vote['Date'],
+                "Affirmative Count": vote['Yeas'],
+                "Votes Affirmative": get_affirmative(votes),
+                "Negative count": vote['Nays'],
+                "Votes Negative:": get_negative(votes)
+            }
+            allBillVotes.append(billVotes)
         billDict = {
             "Bill Name": billName,
             "All Bill Votes": billUrl,

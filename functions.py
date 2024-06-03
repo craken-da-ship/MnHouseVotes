@@ -57,3 +57,54 @@ def get_negative(votes):
 
     return names
 
+
+def get_billinfo(billpage):
+    billpagepattern = "<b>Date.*?Bill #.*?Description.*?Yeas.*?Nays.*?</td>"
+    infoblock = re.findall(billpagepattern, billpage, re.IGNORECASE | re.DOTALL)
+    patterns = ["<br /.*?SF.*?<br />",
+                "<br /.*?HF.*?<br />",
+                "<b>Description.*?<br />.*?<br />.*?<br />",
+                "<b>Yeas</b><br />.*?[0-9]+.*?</td>",
+                "<b>Nays</b><br />.*?[0-9]+.*?</td>",
+                "<a href.*?>.*?</a.*?>"]
+
+    bill = []
+    for info in infoblock:
+        for pattern in patterns:
+            match_results = re.findall(pattern, info, re.IGNORECASE | re.DOTALL)
+            if match_results and ("HF" in pattern or "SF" in pattern):
+                if "HF" in pattern:
+                    parsed = re.findall(r'\>(.*?)\<', match_results[0], re.DOTALL)
+                    date = parsed[0].splitlines()[0]
+                    billname = parsed[5].splitlines()[1]
+                elif "SF" in pattern:
+                    parsed = re.findall(r'\>(.*?)\<', match_results[0], re.DOTALL)
+                    date = parsed[0].splitlines()[0]
+                    billname = parsed[5].splitlines()[1]
+                else:
+                    continue
+            elif "Description" in pattern:
+                parsed = re.findall(r'\>(.*?)\<', match_results[0], re.DOTALL)
+                description = (parsed[4].splitlines())[1]
+            elif "Yeas" in pattern:
+                yeas = re.findall("[0-9]+", match_results[0], re.IGNORECASE | re.DOTALL)
+            elif "Nays" in pattern:
+                nays = re.findall("[0-9]+", match_results[0], re.IGNORECASE | re.DOTALL)
+            elif "href" in pattern:
+                link = match_results[0][9:-17]
+            else:
+                continue
+        billinfo = {
+            "Bill Name": billname,
+            "Date": date,
+            "Description": description,
+            "Yeas": yeas[0],
+            "Nays": nays[0],
+            "Link": link
+        }
+        bill.append(billinfo)
+    return bill
+
+
+def create_pd(bills):
+    print("Here we go!")
