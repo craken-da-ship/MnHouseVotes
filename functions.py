@@ -1,5 +1,7 @@
 import re
 from urllib.request import urlopen
+import pandas
+import pandas as pd
 
 
 def page_grab(url):
@@ -107,4 +109,8 @@ def get_billinfo(billpage):
 
 
 def create_pd(bills):
-    print("Here we go!")
+    df = pd.DataFrame(data=bills)
+    expanded = df.explode('Votes')
+    normalized = pd.json_normalize(expanded['Votes'])
+    expanded.to_excel("expanded.xlsx")
+    normalized.to_excel("normalized.xlsx")
