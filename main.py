@@ -43,3 +43,5 @@ for link in billLinks:
             "Votes": allBillVotes
         }
         allBillsList.append(billDict)
+
+create_pd(allBillsList)
